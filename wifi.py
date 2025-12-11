@@ -1,22 +1,25 @@
 import network
 import time
 from machine import Pin
+
 try:
-    from secrets import WIFI_SSID, WIFI_PASS
+    # Assume secrets.py contains a top-level 'secrets' dictionary
+    from secrets import secrets
+    WIFI_CREDENTIALS = secrets.get('wifi_credentials')
     from config import STATUS_LED_PIN
-except ImportError:
-    print("Error: Could not import 'secrets.py' or 'config.py'.")
-    print("Please create these files and define the required variables.")
-    WIFI_SSID = None
-    WIFI_PASS = None
+except (ImportError, KeyError):
+    print("Error: Could not import 'secrets.py' or 'config.py', or 'wifi_credentials' not found in 'secrets'.")
+    print("Please ensure secrets.py contains a 'secrets' dictionary with a 'wifi_credentials' list.")
+    WIFI_CREDENTIALS = None
     STATUS_LED_PIN = None
 
 def connect_wifi():
     """
     Connects the device to the Wi-Fi network using credentials from secrets.py.
+    It tries each network in the 'wifi_credentials' list until a connection is established.
     Blinks the status LED while connecting.
     """
-    if not all([WIFI_SSID, WIFI_PASS, STATUS_LED_PIN is not None]):
+    if not all([WIFI_CREDENTIALS, STATUS_LED_PIN is not None]):
         print("Wi-Fi credentials or STATUS_LED_PIN are not configured. Halting.")
         return False
 
@@ -24,9 +27,21 @@ def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
 
-    if not wlan.isconnected():
-        print(f"Connecting to network '{WIFI_SSID}'...")
-        wlan.connect(WIFI_SSID, WIFI_PASS)
+    if wlan.isconnected():
+        print("Wi-Fi already connected.")
+        print("Network config:", wlan.ifconfig())
+        led.on()
+        return True
+
+    for creds in WIFI_CREDENTIALS:
+        ssid = creds.get('ssid')
+        password = creds.get('password')
+
+        if not ssid:
+            continue # Skip if SSID is missing
+
+        print(f"Connecting to network '{ssid}'...")
+        wlan.connect(ssid, password)
 
         # Wait for connection with a timeout and LED blinking
         max_wait = 15  # seconds
@@ -42,19 +57,18 @@ def connect_wifi():
         if wlan.isconnected():
             print("Wi-Fi connected.")
             print("Network config:", wlan.ifconfig())
-            led.on()  # Keep LED on to indicate successful connection
+            led.off()  # Keep LED on to indicate successful connection
             return True
         else:
-            print("Wi-Fi connection failed.")
-            # Fast blink to indicate error
-            for _ in range(10):
-                led.on()
-                time.sleep(0.1)
-                led.off()
-                time.sleep(0.1)
-            return False
-    else:
-        print("Wi-Fi already connected.")
-        print("Network config:", wlan.ifconfig())
+            print(f"Failed to connect to '{ssid}'. Trying next network...")
+            wlan.disconnect() # Disconnect before trying next
+            time.sleep(1) # Small delay before next attempt
+
+    print("Wi-Fi connection failed for all configured networks.")
+    # Fast blink to indicate error
+    for _ in range(10):
         led.on()
-        return True
+        time.sleep(0.1)
+        led.off()
+        time.sleep(0.1)
+    return False

@@ -128,6 +128,7 @@ def _read_ds18b20_bus(config):
         return []
     try:
         ow = onewire.OneWire(Pin(config['pin']))
+        time.sleep_ms(100) # Speculative delay for bus to settle
         ds = ds18x20.DS18X20(ow)
         roms = ds.scan()
         ds.convert_temp()

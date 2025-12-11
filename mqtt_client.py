@@ -4,13 +4,28 @@ import ubinascii
 from machine import unique_id
 from umqtt.simple import MQTTClient
 
+import ujson
+import time
+import ubinascii
+from machine import unique_id
+from umqtt.simple import MQTTClient
+
 try:
-    from secrets import MQTT_BROKER, MQTT_USER, MQTT_PASS
-except ImportError:
-    print("Error: Could not import 'secrets.py'. Please create it.")
+    # Assume secrets.py contains a top-level 'secrets' dictionary
+    from secrets import secrets
+    MQTT_BROKER = secrets.get('mqtt_host')
+    MQTT_PORT = secrets.get('mqtt_port', 0) # Default to 0, will be checked
+    MQTT_USER = secrets.get('mqtt_user', '')
+    MQTT_PASS = secrets.get('mqtt_password', '')
+    MQTT_USE_SSL = secrets.get('mqtt_use_ssl', False) # New: Get SSL flag
+except (ImportError, KeyError):
+    print("Error: Could not import 'secrets.py' or 'mqtt_host' not found in 'secrets'.")
+    print("Please ensure secrets.py contains a 'secrets' dictionary with 'mqtt_host' and 'mqtt_port' keys.")
     MQTT_BROKER = None
+    MQTT_PORT = 0
     MQTT_USER = ""
     MQTT_PASS = ""
+    MQTT_USE_SSL = False
 
 class MQTT:
     """
@@ -22,14 +37,15 @@ class MQTT:
         """
         Initializes the MQTT client.
         """
-        if not MQTT_BROKER:
-            raise ValueError("MQTT_BROKER is not defined in secrets.py")
+        if not MQTT_BROKER or not MQTT_PORT:
+            raise ValueError("MQTT_BROKER or MQTT_PORT is not defined or found in secrets.py")
             
         self.client_id = ubinascii.hexlify(unique_id())
         self.broker = MQTT_BROKER
+        self.port = MQTT_PORT
         self.user = MQTT_USER
         self.password = MQTT_PASS
-        self.client = MQTTClient(self.client_id, self.broker, user=self.user, password=self.password)
+        self.client = MQTTClient(self.client_id, self.broker, port=self.port, user=self.user, password=self.password, ssl=MQTT_USE_SSL) # Added ssl=MQTT_USE_SSL
         self.is_connected = False
 
     def connect(self):
@@ -37,7 +53,7 @@ class MQTT:
         Connects to the MQTT broker.
         Returns True on success, False on failure.
         """
-        print(f"Connecting to MQTT broker at {self.broker}...")
+        print(f"Connecting to MQTT broker at {self.broker}:{self.port}...")
         try:
             self.client.connect()
             self.is_connected = True
