@@ -87,7 +87,7 @@ class MQTT:
             return
 
         topic = f"Sensor/{topic_suffix}"
-        payload = ujson.dumps(sensor_data)
+        payload = ujson.dumps(sensor_data).encode('utf-8')
         
         try:
             print(f"Publishing to topic '{topic}': {payload}")

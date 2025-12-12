@@ -1,96 +1,91 @@
-"""
-This file contains the configuration for all sensors.
+# config.py
 
-It defines the GPIO pins and metadata for each sensor, such as its ID,
-type, location, and measurement unit. This makes the main script cleaner
-and the overall system easier to configure.
-
-To add a new sensor, simply add a new entry to the SENSORS dictionary.
-The key should be a unique identifier for the sensor (e.g., 'dht11_living_room'),
-and the value should be a dictionary containing its configuration.
-"""
-from machine import Pin
-
-# Pin for the onboard status LED (if available, e.g., on GPIO 2 for many ESP32 boards)
+# Pin for the onboard status LED (if available)
 STATUS_LED_PIN = 2
 
-# Main sensor configuration dictionary
+# --- Sensor Configuration ---
+# This dictionary defines all the sensors connected to the ESP32.
+# Each key is a unique name for the sensor.
+#
+# The following properties are supported:
+# - 'type': The type of the sensor (e.g., 'DHT11', 'DS18B20', 'Button', 'LDR', 'GY521').
+# - 'active': Set to True to enable the sensor, False to disable it.
+# - 'pin': The GPIO pin number the sensor is connected to.
+# - 'scl_pin', 'sda_pin': For I2C sensors like the GY521.
+# - 'location': A string describing the sensor's location (e.g., 'Living Room').
+# - 'provides': A dictionary describing the values the sensor provides.
+#   - Each key is the type of value (e.g., 'temperature', 'humidity', 'state').
+#   - 'id': The unique ID for this specific value, used in the MQTT message.
+#   - 'unit': The unit of measurement (e.g., '°C', '%').
+#   - 'id_prefix': For DS18B20 buses, a prefix for the unique sensor IDs.
+
 SENSORS = {
-    # Example 1: DHT11 Temperature and Humidity Sensor
-    "dht11": {
-        "pin": 4,
-        "type": "DHT11",
-        "active": True,
-        # DHT11 provides two values, so we define them here
-        "provides": {
-            "temperature": {"id": "Sensor_DHT11_Temp", "unit": "°C"},
-            "humidity": {"id": "Sensor_DHT11_Hum", "unit": "%"}
+    'dht11_living_room': {
+        'type': 'DHT11',
+        'active': True,
+        'pin': 4,
+        'location': 'Living Room',
+        'provides': {
+            'temperature': {
+                'id': 'Sensor_DHT11_Temp',
+                'unit': '°C'
+            },
+            'humidity': {
+                'id': 'Sensor_DHT11_Hum',
+                'unit': '%'
+            }
         }
     },
-
-    # Example 2: DS18B20 Temperature Sensor (1-Wire Bus)
-    # Multiple DS18B20 sensors can be connected to the same pin.
-    # The `sensors.py` script will discover them automatically.
-    "ds18b20_bus": {
-        "pin": 5, # Changed from 27 to 26 for testing
-        "type": "DS18B20",
-        "location": "Basement",
-        "active": True,
-        "provides": {
-            "temperature": {"id_prefix": "Sensor_DS18B20", "unit": "°C"}
+    'ds18b20_bus_outside': {
+        'type': 'DS18B20',
+        'active': True,
+        'pin': 5,
+        'location': 'Outside',
+        'provides': {
+            'temperature': {
+                'id_prefix': 'Sensor_DS18B20',
+                'unit': '°C'
+            }
         }
     },
-
-    # Example 3: Simple Button
-    # "button": {
-    #     "pin": 13,
-    #     "type": "Button",
-    #     "location": "Workshop",
-    #     "active": True,
-    #     "provides": {
-    #         "state": {"id": "Sensor_Button_State", "unit": "boolean"}
-    #     }
-    # },
-
-    # Example 4: LDR (Light Dependent Resistor) - Analog Sensor
-    # "ldr": {
-    #     "pin": 34,  # Use an ADC-capable pin
-    #     "type": "LDR",
-    #     "location": "Greenhouse",
-    #     "active": True,
-    #     "provides": {
-    #         "light": {"id": "Sensor_LDR_Light", "unit": "raw"}
-    #     }
-    # },
-    
-    # Example 5: GY-521 MPU6050 Gyro/Accelerometer (I2C)
-    # The pins for I2C are often fixed on boards, but can be configured.
-    # "gy521": {
-    #     "scl_pin": 22,
-    #     "sda_pin": 21,
-    #     "type": "GY521",
-    #     "location": "Drone",
-    #     "active": True,
-    #     "provides": {
-    #         "accel_x": {"id": "Sensor_GY521_AccelX", "unit": "g"},
-    #         "accel_y": {"id": "Sensor_GY521_AccelY", "unit": "g"},
-    #         "accel_z": {"id": "Sensor_GY521_AccelZ", "unit": "g"},
-    #         "gyro_x": {"id": "Sensor_GY521_GyroX", "unit": "°/s"},
-    #         "gyro_y": {"id": "Sensor_GY521_GyroY", "unit": "°/s"},
-    #         "gyro_z": {"id": "Sensor_GY521_GyroZ", "unit": "°/s"},
-    #         "temp": {"id": "Sensor_GY521_Temp", "unit": "°C"}
-    #     }
-    # }
-    
-    # Add other sensors from your list here following the same structure.
-    # For example, for a Soil Moisture Sensor (analog):
-    # "soil_moisture": {
-    #     "pin": 35,
-    #     "type": "SoilMoisture",
-    #     "location": "Garden",
-    #     "active": True,
-    #     "provides": {
-    #         "moisture": {"id": "Sensor_Soil_Moisture", "unit": "%"}
-    #     }
-    # }
+    'button_1': {
+        'type': 'Button',
+        'active': False, # Disabled for now
+        'pin': 21,
+        'location': 'Desk',
+        'provides': {
+            'state': {
+                'id': 'Sensor_Button_1',
+                'unit': 'boolean'
+            }
+        }
+    },
+    'ldr_1': {
+        'type': 'LDR',
+        'active': False, # Disabled for now
+        'pin': 34,
+        'location': 'Window',
+        'provides': {
+            'light': {
+                'id': 'Sensor_LDR_1',
+                'unit': 'raw'
+            }
+        }
+    },
+    'gy521_1': {
+        'type': 'GY521',
+        'active': False, # Disabled for now
+        'scl_pin': 19,
+        'sda_pin': 18,
+        'location': 'Box',
+        'provides': {
+            'accel_x': {'id': 'Sensor_GY521_AccelX', 'unit': 'g'},
+            'accel_y': {'id': 'Sensor_GY521_AccelY', 'unit': 'g'},
+            'accel_z': {'id': 'Sensor_GY521_AccelZ', 'unit': 'g'},
+            'temp': {'id': 'Sensor_GY521_Temp', 'unit': '°C'},
+            'gyro_x': {'id': 'Sensor_GY521_GyroX', 'unit': 'dps'},
+            'gyro_y': {'id': 'Sensor_GY521_GyroY', 'unit': 'dps'},
+            'gyro_z': {'id': 'Sensor_GY521_GyroZ', 'unit': 'dps'}
+        }
+    }
 }
