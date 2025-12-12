@@ -1,17 +1,24 @@
-import network
 import time
+
+import network
 from machine import Pin
 
 try:
     # Assume secrets.py contains a top-level 'secrets' dictionary
     from secrets import secrets
-    WIFI_CREDENTIALS = secrets.get('wifi_credentials')
+
+    WIFI_CREDENTIALS = secrets.get("wifi_credentials")
     from config import STATUS_LED_PIN
 except (ImportError, KeyError):
-    print("Error: Could not import 'secrets.py' or 'config.py', or 'wifi_credentials' not found in 'secrets'.")
-    print("Please ensure secrets.py contains a 'secrets' dictionary with a 'wifi_credentials' list.")
+    print(
+        "Error: Could not import 'secrets.py' or 'config.py', or 'wifi_credentials' not found in 'secrets'."
+    )
+    print(
+        "Please ensure secrets.py contains a 'secrets' dictionary with a 'wifi_credentials' list."
+    )
     WIFI_CREDENTIALS = None
     STATUS_LED_PIN = None
+
 
 def connect_wifi():
     """
@@ -34,11 +41,11 @@ def connect_wifi():
         return True
 
     for creds in WIFI_CREDENTIALS:
-        ssid = creds.get('ssid')
-        password = creds.get('password')
+        ssid = creds.get("ssid")
+        password = creds.get("password")
 
         if not ssid:
-            continue # Skip if SSID is missing
+            continue  # Skip if SSID is missing
 
         print(f"Connecting to network '{ssid}'...")
         wlan.connect(ssid, password)
@@ -53,7 +60,7 @@ def connect_wifi():
             time.sleep(0.1)
             led.off()
             time.sleep(0.4)
-            
+
         if wlan.isconnected():
             print("Wi-Fi connected.")
             print("Network config:", wlan.ifconfig())
@@ -61,8 +68,8 @@ def connect_wifi():
             return True
         else:
             print(f"Failed to connect to '{ssid}'. Trying next network...")
-            wlan.disconnect() # Disconnect before trying next
-            time.sleep(1) # Small delay before next attempt
+            wlan.disconnect()  # Disconnect before trying next
+            time.sleep(1)  # Small delay before next attempt
 
     print("Wi-Fi connection failed for all configured networks.")
     # Fast blink to indicate error

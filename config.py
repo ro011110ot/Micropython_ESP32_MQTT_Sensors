@@ -20,72 +20,51 @@ STATUS_LED_PIN = 2
 #   - 'id_prefix': For DS18B20 buses, a prefix for the unique sensor IDs.
 
 SENSORS = {
-    'dht11_living_room': {
-        'type': 'DHT11',
-        'active': True,
-        'pin': 4,
-        'location': 'Living Room',
-        'provides': {
-            'temperature': {
-                'id': 'Sensor_DHT11_Temp',
-                'unit': '°C'
-            },
-            'humidity': {
-                'id': 'Sensor_DHT11_Hum',
-                'unit': '%'
-            }
-        }
+    "dht11_living_room": {
+        "type": "DHT11",
+        "active": True,
+        "pin": 4,
+        "location": "Living Room",
+        "provides": {
+            "temperature": {"id": "Sensor_DHT11_Temp", "unit": "°C"},
+            "humidity": {"id": "Sensor_DHT11_Hum", "unit": "%"},
+        },
     },
-    'ds18b20_bus_outside': {
-        'type': 'DS18B20',
-        'active': True,
-        'pin': 5,
-        'location': 'Outside',
-        'provides': {
-            'temperature': {
-                'id_prefix': 'Sensor_DS18B20',
-                'unit': '°C'
-            }
-        }
+    "ds18b20_bus_outside": {
+        "type": "DS18B20",
+        "active": True,
+        "pin": 5,
+        "location": "Outside",
+        "provides": {"temperature": {"id_prefix": "Sensor_DS18B20", "unit": "°C"}},
     },
-    'button_1': {
-        'type': 'Button',
-        'active': False, # Disabled for now
-        'pin': 21,
-        'location': 'Desk',
-        'provides': {
-            'state': {
-                'id': 'Sensor_Button_1',
-                'unit': 'boolean'
-            }
-        }
+    "button_1": {
+        "type": "Button",
+        "active": False,  # Disabled for now
+        "pin": 21,
+        "location": "Desk",
+        "provides": {"state": {"id": "Sensor_Button_1", "unit": "boolean"}},
     },
-    'ldr_1': {
-        'type': 'LDR',
-        'active': False, # Disabled for now
-        'pin': 34,
-        'location': 'Window',
-        'provides': {
-            'light': {
-                'id': 'Sensor_LDR_1',
-                'unit': 'raw'
-            }
-        }
+    "ldr_1": {
+        "type": "LDR",
+        "active": False,  # Disabled for now
+        "pin": 34,
+        "location": "Window",
+        "provides": {"light": {"id": "Sensor_LDR_1", "unit": "uv"}},
     },
-    'gy521_1': {
-        'type': 'GY521',
-        'active': False, # Disabled for now
-        'scl_pin': 19,
-        'sda_pin': 18,
-        'location': 'Box',
-        'provides': {
-            'accel_x': {'id': 'Sensor_GY521_AccelX', 'unit': 'g'},
-            'accel_y': {'id': 'Sensor_GY521_AccelY', 'unit': 'g'},
-            'accel_z': {'id': 'Sensor_GY521_AccelZ', 'unit': 'g'},
-            'temp': {'id': 'Sensor_GY521_Temp', 'unit': '°C'},
-            'gyro_x': {'id': 'Sensor_GY521_GyroX', 'unit': 'dps'},
-            'gyro_y': {'id': 'Sensor_GY521_GyroY', 'unit': 'dps'},
-            'gyro_z': {'id': 'Sensor_GY521_GyroZ', 'unit': 'dps'}
-        }
-    }
+    "gy521_1": {
+        "type": "GY521",
+        "active": False,  # Disabled for now
+        "scl_pin": 19,
+        "sda_pin": 18,
+        "location": "Box",
+        "provides": {
+            "accel_x": {"id": "Sensor_GY521_AccelX", "unit": "g"},
+            "accel_y": {"id": "Sensor_GY521_AccelY", "unit": "g"},
+            "accel_z": {"id": "Sensor_GY521_AccelZ", "unit": "g"},
+            "temp": {"id": "Sensor_GY521_Temp", "unit": "°C"},
+            "gyro_x": {"id": "Sensor_GY521_GyroX", "unit": "dps"},
+            "gyro_y": {"id": "Sensor_GY521_GyroY", "unit": "dps"},
+            "gyro_z": {"id": "Sensor_GY521_GyroZ", "unit": "dps"},
+        },
+    },
 }

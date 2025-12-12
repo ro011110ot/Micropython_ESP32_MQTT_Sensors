@@ -1,7 +1,8 @@
-import ntptime
 import time
-import utime
-from machine import RTC # Import machine.RTC
+
+import ntptime
+from machine import RTC  # Import machine.RTC
+
 
 def cettime():
     """
@@ -57,6 +58,7 @@ def cettime():
 
     return rtc_tuple
 
+
 def sync_time():
     """
     Synchronizes the device's real-time clock (RTC) with an NTP server (UTC)
@@ -64,31 +66,37 @@ def sync_time():
     Retries a few times if it fails.
     """
     print("Synchronizing RTC with NTP server (UTC)...")
-    
+
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            ntptime.settime() # Sets RTC to UTC
-            time.sleep(2) # Give RTC a moment to settle
+            ntptime.settime()  # Sets RTC to UTC
+            time.sleep(2)  # Give RTC a moment to settle
 
             # Now calculate CET/CEST and set the RTC
             rtc = RTC()
             cet_datetime = cettime()
             rtc.datetime(cet_datetime)
-            
+
             # Get current time to verify (now in local CET/CEST)
             year, month, day, weekday, hour, minute, second, _ = rtc.datetime()
-            
+
             # Check if the year is plausible (e.g., > 2023)
             if year > 2023:
-                print(f"Time synchronized successfully to CET/CEST: {day:02d}-{month:02d}-{year} {hour:02d}:{minute:02d}:{second:02d}")
+                print(
+                    f"Time synchronized successfully to CET/CEST: {day:02d}-{month:02d}-{year} {hour:02d}:{minute:02d}:{second:02d}"
+                )
                 return True
             else:
-                raise ValueError("Invalid time received from NTP server or CET calculation.")
+                raise ValueError(
+                    "Invalid time received from NTP server or CET calculation."
+                )
 
         except Exception as e:
-            print(f"Error synchronizing time (attempt {attempt + 1}/{max_retries}): {e}")
+            print(
+                f"Error synchronizing time (attempt {attempt + 1}/{max_retries}): {e}"
+            )
             time.sleep(5)
-            
+
     print("Failed to synchronize time after several retries.")
     return False

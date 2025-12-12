@@ -8,14 +8,18 @@ This script orchestrates the entire process:
 4. Enters a continuous loop to read all configured sensors and publish
    their data to the MQTT broker.
 """
+
 import time
+
 from machine import Pin
+
+import ntp
 
 # Import custom modules
 import wifi
-import ntp
 from mqtt_client import MQTT
 from sensors import read_all_sensors
+
 try:
     from config import STATUS_LED_PIN
 except ImportError:
@@ -25,6 +29,7 @@ except ImportError:
 # Time to wait between sensor reading cycles (in seconds)
 LOOP_INTERVAL_SEC = 60
 
+
 def main():
     """
     Main execution function.
@@ -33,7 +38,7 @@ def main():
     status_led = None
     if STATUS_LED_PIN is not None:
         status_led = Pin(STATUS_LED_PIN, Pin.OUT)
-        status_led.off() # Start with LED off
+        status_led.off()  # Start with LED off
 
     # --- Step 1: Connect to Wi-Fi ---
     if not wifi.connect_wifi():
@@ -45,7 +50,7 @@ def main():
                 time.sleep(0.1)
                 status_led.off()
                 time.sleep(0.1)
-        return # Stop everything
+        return  # Stop everything
 
     # --- Step 2: Synchronize Time ---
     ntp.sync_time()
@@ -58,7 +63,7 @@ def main():
             print("Could not connect to MQTT. Halting execution.")
             # Consider a retry mechanism for more robustness
             return
-            
+
         # --- Step 4: Main Loop ---
         print("\n--- Starting main sensor loop ---")
         while True:
@@ -68,7 +73,7 @@ def main():
                 if not mqtt.connect():
                     print("Reconnect failed. Waiting before next attempt.")
                     time.sleep(30)
-                    continue # Skip this loop iteration
+                    continue  # Skip this loop iteration
 
             # Read all sensors
             sensor_readings = read_all_sensors()
@@ -76,8 +81,8 @@ def main():
             # Publish each reading
             if sensor_readings:
                 for reading in sensor_readings:
-                    mqtt.publish(reading['type'], reading['data'])
-                    time.sleep(0.1) # Small delay between messages
+                    mqtt.publish(reading["type"], reading["data"])
+                    time.sleep(0.1)  # Small delay between messages
             else:
                 print("No sensor readings to publish.")
 
