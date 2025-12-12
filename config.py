@@ -10,7 +10,7 @@ STATUS_LED_PIN = 2
 # The following properties are supported:
 # - 'type': The type of the sensor (e.g., 'DHT11', 'DS18B20', 'Button', 'LDR', 'GY521').
 # - 'active': Set to True to enable the sensor, False to disable it.
-# - 'pin': The GPIO pin number the sensor is connected to.
+# - 'pin': The GPIO number the sensor is connected to.
 # - 'scl_pin', 'sda_pin': For I2C sensors like the GY521.
 # - 'location': A string describing the sensor's location (e.g., 'Living Room').
 # - 'provides': A dictionary describing the values the sensor provides.

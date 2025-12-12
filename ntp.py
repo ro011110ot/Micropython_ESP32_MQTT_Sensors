@@ -33,7 +33,7 @@ def cettime():
 
     # Apply timezone offset based on whether DST is active
     if dst_start_utc <= now_utc < dst_end_utc:
-        # CEST: Central European Summer Time (UTC+2 hours)
+        # CEST: Central European Summer (UTC+2 hours)
         offset_seconds = 7200
     else:
         # CET: Central European Time (UTC+1 hour)

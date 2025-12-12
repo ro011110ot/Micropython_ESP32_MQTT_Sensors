@@ -46,14 +46,10 @@ class MPU6050:
         return val[0] << 8 | val[1]
 
     def get_values(self):
-        raw_values = {}
-        raw_values['accel_x'] = self._read_word_2c(0x3B)
-        raw_values['accel_y'] = self._read_word_2c(0x3D)
-        raw_values['accel_z'] = self._read_word_2c(0x3F)
-        raw_values['temp'] = self._read_word_2c(0x41)
-        raw_values['gyro_x'] = self._read_word_2c(0x43)
-        raw_values['gyro_y'] = self._read_word_2c(0x45)
-        raw_values['gyro_z'] = self._read_word_2c(0x47)
+        raw_values = {'accel_x': self._read_word_2c(0x3B), 'accel_y': self._read_word_2c(0x3D),
+                      'accel_z': self._read_word_2c(0x3F), 'temp': self._read_word_2c(0x41),
+                      'gyro_x': self._read_word_2c(0x43), 'gyro_y': self._read_word_2c(0x45),
+                      'gyro_z': self._read_word_2c(0x47)}
 
         # Convert to sensible values
         accel_x = self._convert_to_g(raw_values['accel_x'])
@@ -78,8 +74,9 @@ class MPU6050:
         # Convert raw gyroscope data to degrees per second
         return self._twos_complement(raw) / 131.0
     
-    def _twos_complement(self, val):
-        if (val >= 0x8000):
+    @staticmethod
+    def _twos_complement(val):
+        if val >= 0x8000:
             return -((65535 - val) + 1)
         else:
             return val
@@ -95,9 +92,7 @@ def _read_dht11(config):
         temp = sensor.temperature()
         hum = sensor.humidity()
         
-        readings = []
-        # Temperature reading
-        readings.append({
+        readings = [{
             'type': config['type'],
             'data': {
                 'id': config['provides']['temperature']['id'],
@@ -106,9 +101,7 @@ def _read_dht11(config):
                 'location': config['location'],
                 'active': config['active']
             }
-        })
-        # Humidity reading
-        readings.append({
+        }, {
             'type': config['type'],
             'data': {
                 'id': config['provides']['humidity']['id'],
@@ -117,7 +110,9 @@ def _read_dht11(config):
                 'location': config['location'],
                 'active': config['active']
             }
-        })
+        }]
+        # Temperature reading
+        # Humidity reading
         return readings
     except Exception as e:
         print(f"Error reading DHT11 sensor: {e}")
@@ -177,9 +172,8 @@ def _read_button(config):
 
 def _read_ldr(config):
     try:
-        adc = ADC(Pin(config['pin']))
-        adc.atten(ADC.ATTN_11DB) # Set full range (0-3.3V)
-        value = adc.read()
+        adc = ADC(Pin(config['pin'], atten=ADC.ATTN_11DB)) # Use ADC.init(atten=atten) or pass atten in constructor
+        value = adc.read_u16() # Use read_u16() for 16-bit resolution
         return [{
             'type': config['type'],
             'data': {
